@@ -989,14 +989,14 @@ type Catalogue struct {
 }
 
 // GetData fetches the Battlescribe data for the BSData/wh40k repo
-func GetData(repo string) ([]*Catalogue, error) {
+func GetData(repo, tag string) ([]*Catalogue, error) {
 	log.Infof("getting %s catalogues", repo)
 
 	// clean up
 	cleanUp(repo)
 
 	// clone the repo
-	err := clone(repo)
+	err := clone(repo, tag)
 	checkErr(err)
 
 	// get the cat files
@@ -1039,7 +1039,7 @@ func checkErr(err error) {
 	}
 }
 
-func clone(repo string) error {
+func clone(repo, tag string) error {
 	log.Infof("cloning repo %s/%s", baseDataRepoURL, repo)
 	m := sideband.NewMuxer(sideband.Sideband, os.Stdout)
 	r, err := git.PlainClone(directory+"/"+repo, false, &git.CloneOptions{
@@ -1055,7 +1055,28 @@ func clone(repo string) error {
 		return err
 	}
 
-	log.Infof("checked out at hash: %s", ref.Hash().String())
+	log.Infof("checked out at hash (%s): %s", ref.Name(), ref.Hash().String())
+
+	if tag != "" {
+		// get the tag's ref
+		ref, err = r.Tag(tag)
+		if err != nil {
+			return err
+		}
+
+		// get the worktree
+		w, err := r.Worktree()
+		if err != nil {
+			return err
+		}
+
+		// checkout the tag
+		w.Checkout(&git.CheckoutOptions{
+			Hash: ref.Hash(),
+		})
+
+		log.Infof("checked out at hash (%s): %s", ref.Name(), ref.Hash().String())
+	}
 
 	return nil
 }

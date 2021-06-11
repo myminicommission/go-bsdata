@@ -8,7 +8,8 @@ import (
 
 func TestGetData(t *testing.T) {
 	testRepo := "star-wars-legion"
-	catalogues, err := bsdata.GetData(testRepo)
+	testTag := "1.7.0"
+	catalogues, err := bsdata.GetData(testRepo, testTag)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
