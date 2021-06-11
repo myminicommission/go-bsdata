@@ -1071,9 +1071,12 @@ func clone(repo, tag string) error {
 		}
 
 		// checkout the tag
-		w.Checkout(&git.CheckoutOptions{
+		err = w.Checkout(&git.CheckoutOptions{
 			Hash: ref.Hash(),
 		})
+		if err != nil {
+			return err
+		}
 
 		log.Infof("checked out at hash (%s): %s", ref.Name(), ref.Hash().String())
 	}
