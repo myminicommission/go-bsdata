@@ -1045,6 +1045,7 @@ func clone(repo, tag string) error {
 	r, err := git.PlainClone(directory+"/"+repo, false, &git.CloneOptions{
 		URL:      baseDataRepoURL + "/" + repo,
 		Progress: m,
+		Depth:    1,
 	})
 	if err != nil {
 		return err
